@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Reservation">
+
+    <select id="personReservation" parameterType="Map" resultType="Reservation">
+      <![CDATA[select * from (select rownum rnum,a.* from (select *from reservation where nr_pid=#{id} order by nr_date desc) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+	<select id="laundryCart" parameterType="String" resultType="N_laundry">
+		SELECT * FROM N_LAUNDRY WHERE NL_CODE=#{NLCODE}
+	</select>
+	<select id="laundryhandle" parameterType="String" resultType="Laundryhandle">
+		SELECT * FROM LAUNDRYHANDLE WHERE LH_NLCODE=#{NLCODE}
+	</select>
+	<select id="laundryhandle1" parameterType="String" resultType="Laundryhandle">
+		SELECT LH_KIND FROM LAUNDRYHANDLE WHERE LH_NLCODE=#{NLCODE} GROUP BY LH_KIND
+	</select>
+	<select id="laundryhandle2" parameterType="String" resultType="Laundryhandle">
+		SELECT LH_LAUNDRY FROM LAUNDRYHANDLE WHERE LH_NLCODE=#{NLCODE} GROUP BY LH_LAUNDRY
+	</select>
+	<select id="laundryhandle3" parameterType="String" resultType="Laundryhandle">
+		SELECT LH_LAUNDRY FROM LAUNDRYHANDLE WHERE LH_KIND=#{T_NAME} AND LH_NLCODE=#{NLCODE} GROUP BY LH_LAUNDRY
+	</select>
+	
+	<!--관리자 세탁소 예약관리 -->
+	<select id="reservationAdN1" resultType="N_laundry">
+		SELECT * FROM N_LAUNDRY
+	</select>
+	<select id="reservationAdN2" resultType="Reservation">
+		SELECT * FROM RESERVATION
+	</select>
+	<select id="getcode" parameterType="String" resultType="N_laundry">
+		SELECT * FROM N_LAUNDRY WHERE NL_CODE=#{nr_nlcode}
+	</select>
+	
+	<select id="searchMoney" parameterType="String" resultType="Laundryhandle">
+		SELECT LH_PAYMENT FROM LAUNDRYHANDLE WHERE LH_NLCODE=#{NLCODE} AND LH_LAUNDRY=#{THING}
+	</select>
+	
+	<insert id="insertReservation" parameterType="Reservation">
+	<selectKey keyProperty="nr_code" resultType="String" order="BEFORE">
+         select 'NR'|| MAX(substr(nr_code,3)+1) from Reservation
+      </selectKey>
+		INSERT INTO RESERVATION VALUES(#{nr_code},#{nr_pid},DEFAULT,#{nr_nlcode},DEFAULT,#{nr_pickupdate},#{nr_pickuptime},#{nr_deliverydate},#{nr_deliverytime})
+	</insert>
+	
+	<insert id="insertReadypoint" parameterType="Readypoint">
+	<selectKey keyProperty="rp_code" resultType="String" order="BEFORE">
+         select 'RP'|| MAX(substr(rp_code,3)+1) from ReadyPoint
+      </selectKey>
+		INSERT INTO READYPOINT VALUES(#{rp_code},#{rp_nrcode},#{rp_downid},#{rp_upid},#{rp_point},DEFAULT)
+	</insert>
+	
+	<select id="getnrcode" parameterType="String" resultType="String">
+		SELECT MAX(NR_CODE) FROM RESERVATION WHERE NR_NLCODE = #{NLCODE}
+	</select>
+	
+	<select id="getbusiness" parameterType="String" resultType="String">
+		SELECT NL_PID FROM N_LAUNDRY WHERE NL_CODE = #{NLCODE}
+	</select>
+	
+	
+	<!-- 아래부분 사업자 관리 매핑 -->
+	
+	<select id="reservationList" parameterType="String" resultType="Reservation">
+		SELECT * FROM RESERVATION WHERE NR_NLCODE=#{code}
+	</select>
+	<select id="laundrycode" parameterType="String" resultType="N_laundry">
+		SELECT * FROM N_laundry WHERE NL_PID=#{id}
+	</select>
+	<select id="getPerson" parameterType="String" resultType="Person">
+		SELECT * FROM PERSON WHERE P_ID=#{pid}
+	</select>
+	<select id="getMember" parameterType="String" resultType="Member">
+		SELECT * FROM MEMBER WHERE M_PID=#{id}
+	</select>
+	<select id="getPersonl" parameterType="Reservation" resultType="Person">
+		SELECT * FROM PERSON WHERE P_ID=#{nr_pid}
+	</select>
+	<select id="getrodercode" parameterType="String" resultType="Orderlist">
+		SELECT * FROM ORDERLIST WHERE O_NRCODE=#{nrcode}
+	</select>
+   	<update id="laundryProcessing" parameterType="Map">
+		UPDATE RESERVATION SET NR_STATE=#{state} WHERE NR_CODE=#{arr}
+	</update>
+	<select id="handle" parameterType="String" resultType="Laundryhandle">
+		SELECT * FROM Laundryhandle WHERE LH_CODE=#{o_lhcode}
+	</select>
+	 <select id="searchTime" parameterType="String" resultType="N_laundry">
+      SELECT * FROM N_LAUNDRY WHERE NL_CODE=#{NLCODE}
+   </select> 
+  	 <select id="ReservationCount"  resultType="Integer">
+		 select count(*) from reservation where nr_pid=#{id} 
+	</select>
+	
+	<insert id="createOrderList" parameterType="Orderlist">
+      INSERT INTO ORDERLIST VALUES(#{o_nrcode},#{o_qty},#{o_lhcode},#{o_num})
+   </insert>
+   <insert id="createReservation" parameterType="Reservation">
+   <selectKey keyProperty="nr_code" resultType="String" order="BEFORE">
+         select 'NR'|| MAX(substr(nr_code,3)+1) from Reservation
+      </selectKey>
+      INSERT INTO RESERVATION VALUES(#{nr_code},#{nr_pid},DEFAULT,#{nr_nlcode},DEFAULT,'NULL','NULL','NULL','NULL','NULL','NULL')
+   </insert>
+    <select id="nrcode" parameterType="String" resultType="String">
+      SELECT NR_CODE FROM RESERVATION WHERE NR_PID=#{PID} AND NR_PICKUP='NULL'
+   </select> 
+   <delete id="deleteOrderList" parameterType="Orderlist">
+      DELETE ORDERLIST WHERE O_NRCODE=#{o_nrcode} AND O_NUM=#{o_num}
+   </delete>
+   <update id="updateReservation" parameterType="Reservation">
+      UPDATE RESERVATION SET NR_PICKUPDATE=#{nr_pickupdate},NR_PICKUPTIME=#{nr_pickuptime},NR_DELIVERYDATE=#{nr_deliverydate},NR_DELIVERYTIME=#{nr_deliverytime},NR_DELIVERY=#{nr_delivery},NR_PICKUP=#{nr_pickup} WHERE NR_CODE=#{nr_code}
+   </update>
+    <select id="selectReservation" parameterType="Reservation" resultType="String">
+      SELECT UNIQUE NR_DELIVERY FROM RESERVATION WHERE NR_PID=#{nr_pid} AND NR_NLCODE=#{nr_nlcode} AND NR_DELIVERY='NULL'
+   </select> 
+   <delete id="deleteReservation" parameterType="Reservation">
+      DELETE FROM RESERVATION WHERE NR_PID=#{nr_pid} AND NR_NLCODE=#{nr_nlcode} AND NR_DELIVERY='NULL'
+   </delete>
+   <insert id="updateMileage" parameterType="Mileage">
+   <selectKey keyProperty="mg_code" resultType="String" order="BEFORE">
+         select 'NR'|| MAX(substr(nr_code,3)+1) from Reservation
+      </selectKey>
+      INSERT INTO MILEAGE VALUES(#{mg_code},#{mg_pid},#{mg_mileage},2,DEFAULT,1)
+   </insert>
+    <select id="getreservation" parameterType="Map" resultType="Reservation">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from reservation where nr_nlcode=#{nlcode}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="getselectreservation" parameterType="Map" resultType="Reservation">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from reservation where nr_nlcode=#{nlcode} and nr_state=${state}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="getshop" parameterType="Map" resultType="N_laundry">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from n_laundry where nl_pid=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+      <select id="getselectcnt" parameterType="Map" resultType="Reservation">
+      SELECT * FROM RESERVATION WHERE NR_NLCODE=#{nlcode} AND NR_STATE=${state}
+   </select>
+      <select id="getcnt" parameterType="Map" resultType="Reservation">
+      SELECT * FROM RESERVATION WHERE NR_NLCODE=#{nlcode}
+   </select>
+    <select id="reviewCount" parameterType="Reservation" resultType="Integer">
+       select count(*) from review where re_nrcode=#{nr_code} AND re_pid=#{nr_pid} 
+  </select>
+       <select id="getreadypoint"  parameterType="String" resultType="Integer">
+       select rp_point from readypoint where rp_nrcode=#{nr_code}
+   </select> 
+</mapper>

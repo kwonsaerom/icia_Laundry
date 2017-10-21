@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="point">
+   <select id="memberselect" parameterType="String" resultType="String">
+      SELECT M_GGRADE FROM MEMBER WHERE M_PID = #{id}
+   </select>
+   <select id="pointMapSelect" parameterType="Map" resultType="pointhistory">
+   <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM POINTHISTORY WHERE PH_PID = #{id} ORDER BY PH_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+      
+   </select>
+   <select id="pointselect" parameterType="String" resultType="pointhistory">
+   SELECT * FROM POINTHISTORY WHERE PH_PID = #{id} ORDER BY PH_DATE DESC
+   </select>
+   <select id="mileageMapSelect" parameterType="Map" resultType="mileage">
+   <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM MILEAGE WHERE MG_PID = #{id} ORDER BY MG_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+      
+   </select>
+   <select id="mileageselect" parameterType="String" resultType="mileage">
+      SELECT * FROM MILEAGE WHERE MG_PID = #{id} ORDER BY MG_DATE DESC
+   </select>
+   <insert id="pointinsert" parameterType="pointhistory">
+      <selectKey keyProperty="ph_code" resultType="String" order="BEFORE">
+         SELECT 'PH'|| MAX(substr(ph_code,3)+1) FROM POINTHISTORY
+      </selectKey>
+      INSERT INTO POINTHISTORY
+      VALUES(#{ph_code},#{ph_pid},#{ph_point},#{ph_history},SYSDATE,#{ph_process})
+   </insert>
+   <insert id="memberReturnInsert" parameterType="return">
+      <selectKey keyProperty="pr_code" resultType="String" order="BEFORE">
+         SELECT 'PR'|| MAX(substr(pr_code,3)+1) FROM RETURN
+      </selectKey>
+      INSERT INTO RETURN
+      VALUES(#{pr_code},#{pr_pid},#{pr_point},#{pr_name},#{pr_phone},#{pr_banknum},#{pr_bank},0,SYSDATE,0)
+   </insert>
+   <insert id="businessReturnInsert" parameterType="return">
+      <selectKey keyProperty="pr_code" resultType="String" order="BEFORE">
+         SELECT 'PR'|| MAX(substr(pr_code,3)+1) FROM RETURN
+      </selectKey>
+      INSERT INTO RETURN
+      VALUES(#{pr_code},#{pr_pid},#{pr_point},#{pr_name},#{pr_phone},#{pr_banknum},#{pr_bank},0,SYSDATE,1)
+   </insert>
+   <select id="returnselect" parameterType="Map" resultType="return">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM RETURN WHERE PR_PID = #{id} ORDER BY PR_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="returnCount" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM RETURN WHERE PR_PID = #{id}
+   </select>
+   <select id="kindselect" parameterType="String" resultType="Integer">
+      SELECT P_FLAG FROM PERSON WHERE P_ID = #{id}
+   </select>
+   <select id="returnAllSelect" parameterType="Map" resultType="return">
+   <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM RETURN WHERE PR_STATE = #{i} ORDER BY PR_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="returnAllCount" parameterType="Integer" resultType="Integer">
+      SELECT count(*) FROM RETURN WHERE PR_STATE = #{i}
+   </select>
+   <select id="returnFlagSelect" parameterType="Map" resultType="return">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM RETURN WHERE PR_STATE = #{state} AND PR_FLAG = #{flag}
+      ORDER BY PR_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="returnFlagCount" parameterType="Map" resultType="Integer">
+      SELECT COUNT(*) FROM RETURN WHERE PR_STATE = #{state} AND PR_FLAG = #{flag}
+      ORDER BY PR_DATE DESC
+   </select>
+   <update id="returnUpdate" parameterType="String">
+      UPDATE RETURN SET PR_STATE = 1 WHERE PR_CODE = #{code}
+   </update>
+   <select id="returnCodeSelect" parameterType="String" resultType="return">
+      SELECT * FROM RETURN WHERE PR_CODE = #{code}
+   </select>
+   <select id="reservationSelect" parameterType="Map" resultType="reservation">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM RESERVATION WHERE NR_STATE = #{state} ORDER BY NR_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="reservationCount" parameterType="Integer"
+      resultType="Integer">
+      SELECT COUNT(*) FROM RESERVATION WHERE NR_STATE = #{state}
+   </select>
+   <select id="reservationSelect2" parameterType="Map" resultType="reservation">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM RESERVATION WHERE NR_STATE = #{i} OR NR_STATE = #{j} ORDER BY NR_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="readypointSelect" parameterType="String" resultType="readypoint">
+      SELECT * FROM READYPOINT WHERE RP_NRCODE = #{nr_code}
+   </select>
+   <select id="personPhoneSelect" parameterType="String"
+      resultType="String">
+      SELECT P_PHONE FROM PERSON WHERE P_ID = #{id}
+   </select>
+   <select id="laundryNameSelect" parameterType="String"
+      resultType="String">
+      SELECT NL_NAME FROM N_LAUNDRY WHERE NL_CODE = #{nl_code}
+   </select>
+   <select id="phcodeSelect" parameterType="Map" resultType="String">
+      SELECT PH_CODE FROM POINTHISTORY WHERE PH_PROCESS = #{ph_process} AND PH_PID
+      = #{ph_pid}
+   </select>
+   <update id="readypointUpdate" parameterType="readypoint">
+      UPDATE READYPOINT SET RP_STATE = #{rp_state} WHERE RP_CODE = #{rp_code}
+   </update>
+   <update id="reservationUpdate" parameterType="reservation">
+      UPDATE RESERVATION SET NR_STATE = #{nr_state} WHERE NR_CODE = #{nr_code}
+   </update>
+   <update id="pointUpdate" parameterType="pointhistory">
+      UPDATE POINTHISTORY SET PH_HISTORY = #{ph_history} WHERE PH_PID = #{ph_pid}
+      AND PH_PROCESS = #{ph_process}
+   </update>
+   <select id="pointPlusSelect" parameterType="String"   resultType="pointhistory">
+      SELECT * FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=0 or ph_history=2
+      or ph_history=3 or ph_history=6) WHERE PH_PID =#{id} ORDER BY PH_DATE
+      DESC
+   </select>
+   <select id="pointPlusMapSelect" parameterType="Map"   resultType="pointhistory">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=0 or ph_history=2
+      or ph_history=3 or ph_history=6) WHERE PH_PID =#{id} ORDER BY PH_DATE
+      DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   
+   </select>
+   <select id="pointMinusSelect" parameterType="pointhistory"
+      resultType="pointhistory">
+      SELECT * FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=1 or ph_history=4
+      or ph_history=5) WHERE PH_PID =#{id} ORDER BY PH_DATE DESC
+   </select>
+   <select id="pointMinusMapSelect" parameterType="Map" resultType="pointhistory">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=1 or ph_history=4
+      or ph_history=5) WHERE PH_PID =#{id} ORDER BY PH_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+      
+   </select>
+   <select id="mileagePlmiSelect" parameterType="mileage" resultType="mileage">
+      SELECT * FROM MILEAGE WHERE MG_PID = #{mg_pid} AND
+      MG_UPDOWN = #{mg_updown} ORDER BY MG_DATE DESC
+   </select>
+   <select id="mileagePlmiMapSelect" parameterType="Map" resultType="mileage">
+      <![CDATA[select * from (select rownum rnum,a.* from (SELECT * FROM MILEAGE WHERE MG_PID = #{mg_pid} AND
+      MG_UPDOWN = #{mg_updown} ORDER BY MG_DATE DESC) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="mileagePlmiCount" parameterType="mileage" resultType="Integer">
+      SELECT COUNT(*) FROM MILEAGE WHERE MG_PID = #{mg_pid} AND
+      MG_UPDOWN = #{mg_updown}
+   </select>
+   <select id="pointCount" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM POINTHISTORY WHERE PH_PID = #{id}
+   </select>
+   <select id="mileageCount" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM MILEAGE WHERE MG_PID = #{id}
+   </select>
+   <select id="pointPlusCount" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=0 or ph_history=2
+      or ph_history=3 or ph_history=6) WHERE PH_PID =#{id}
+   </select>
+   <select id="pointMinusCount" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM (SELECT * FROM POINTHISTORY WHERE PH_HISTORY=1 or ph_history=4
+      or ph_history=5) WHERE PH_PID =#{id}
+   </select>
+
+</mapper>

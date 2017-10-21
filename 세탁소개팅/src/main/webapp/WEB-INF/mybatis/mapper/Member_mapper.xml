@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="member">
+   
+   <select id="getSecurityPwd" parameterType="String" resultType="String">
+      SELECT P_PW FROM PERSON WHERE P_ID=#{p_id}
+   </select>
+   
+   <select id="getFlag" parameterType="String" resultType="Integer">
+      SELECT P_FLAG FROM PERSON WHERE P_ID=#{p_id}
+   </select>
+   
+   <select id="getLoginResult" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_ID=#{p_id} AND P_PW=#{p_pw}
+   </select>
+   
+   <select id="idCheck" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_ID=#{p_id} 
+   </select>
+   
+   <insert id="personInsert" parameterType="person">
+      INSERT INTO PERSON VALUES (#{p_id},#{p_pw},#{p_name},#{p_gender},#{p_email},#{p_phone},#{p_state},#{p_flag})
+   </insert>
+   
+   <insert id="memberInsert" parameterType="member">
+      INSERT INTO MEMBER VALUES (#{m_pid}, #{m_address}, #{m_ggrade})
+   </insert>
+   
+   <insert id="businessInsert" parameterType="business">
+      INSERT INTO BUSINESS VALUES (#{b_pid}, #{b_lisence})
+   </insert>
+
+   <select id="emailCheck" parameterType="String" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_EMAIL=#{to1} 
+   </select>
+   
+   <select id="findId" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_NAME=#{p_name} AND P_EMAIL=#{p_email} AND P_FLAG!=4
+   </select>
+   
+   <select id="getId" parameterType="person" resultType="String">
+      SELECT P_ID FROM PERSON WHERE P_NAME=#{p_name} AND P_EMAIL=#{p_email} AND NOT P_FLAG=4
+   </select>
+   
+   <select id="findPw" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_ID=#{p_id} AND P_EMAIL=#{p_email} AND NOT P_FLAG=4
+   </select>
+
+   <update id="changePw" parameterType="person">
+      UPDATE PERSON 
+      SET P_PW=#{p_pw}
+      WHERE P_ID=#{p_id} 
+   </update>
+   
+   <select id="personUpdatePage" parameterType="String" resultType="person">
+      SELECT * FROM PERSON WHERE P_ID=#{p_id} 
+   </select>
+   
+   <select id="memberUpdatePage" parameterType="String" resultType="member">
+      SELECT * FROM MEMBER WHERE M_PID=#{p_id}
+   </select>
+   
+   <update id="personUpdate" parameterType="person">
+      UPDATE PERSON 
+      SET P_PW=#{p_pw}, P_NAME=#{p_name}, P_GENDER=#{p_gender}, P_EMAIL=#{p_email}, P_PHONE=#{p_phone}
+      WHERE P_ID=#{p_id}
+      
+   </update>
+   
+   <update id="memberUpdate" parameterType="member">
+      UPDATE MEMBER 
+      SET M_ADDRESS=#{m_address}
+      WHERE M_PID=#{m_pid}
+   </update>
+   
+   <delete id="personDelete" parameterType="String">
+      DELETE FROM PERSON WHERE P_ID=#{p_id}
+   </delete>
+   
+   <select id="businessUpdatePage" parameterType="String" resultType="business">
+      SELECT * FROM BUSINESS WHERE B_PID=#{p_id}
+   </select>
+   
+   <select id="getPersonList" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE, P_FLAG, P_STATE FROM PERSON WHERE NOT P_FLAG=4
+   </select>
+   
+   <select id="getMemberList" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE FROM PERSON WHERE P_STATE=0 AND P_FLAG=1 AND NOT P_FLAG=4
+   </select>
+   
+   <select id="getBusinessList" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE FROM PERSON WHERE P_STATE=0 AND P_FLAG=2 AND NOT P_FLAG=4
+   </select>
+   
+   <select id="getBlackList" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE, P_FLAG FROM PERSON WHERE P_STATE=1 AND NOT P_FLAG=4
+   </select>
+   
+   <select id="getMemberList2" resultType="person">
+   SELECT P_ID, P_NAME, P_EMAIL, P_PHONE, P_STATE FROM PERSON WHERE P_FLAG=1 AND NOT P_FLAG=4
+   </select>
+   
+   <select id="getBusinessList2" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE, P_STATE FROM PERSON WHERE P_FLAG=2 AND NOT P_FLAG=4
+   </select>
+   
+   <select id="getDeleteList" resultType="person">
+      SELECT P_ID, P_NAME, P_EMAIL, P_PHONE FROM PERSON WHERE P_FLAG=4
+   </select>
+   
+   <update id="addBlackList" parameterType="String">
+      UPDATE PERSON
+      SET P_STATE=1
+      WHERE P_ID=#{p_id} AND P_STATE=0
+   </update>
+   
+   <update id="removeBlack" parameterType="String">
+      UPDATE PERSON
+      SET P_STATE=0
+      WHERE P_ID=#{p_id} AND P_STATE=1
+   </update>
+   
+   <update id="addDeleteList" parameterType="String">
+      UPDATE PERSON
+      SET P_FLAG=4
+      WHERE P_ID=#{p_id} AND NOT P_FLAG=4
+   </update>
+   
+   <select id="emailCheck2" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_NAME=#{p_name} AND P_EMAIL=#{p_email} AND NOT P_FLAG=4
+   </select>
+   
+   <select id="emailCheck3" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_ID=#{p_id} AND P_EMAIL=#{p_email} AND NOT P_FLAG=4
+   </select>
+   
+<select id="emailCheck4" parameterType="person" resultType="Integer">
+      SELECT COUNT(*) FROM PERSON WHERE P_ID=#{p_id} AND P_EMAIL=#{p_email}
+   </select>   
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="note">
+   <select id="messageCheck" parameterType="String" resultType="Integer">
+      SELECT Count(N_CODE) FROM NT WHERE N_STATE=0 and N_TAKEID=#{id}
+   </select>
+   <select id="messageForm" parameterType="Map" resultType="note">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from note where N_TAKEID=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="sendmessage" parameterType="Map" resultType="note">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from note where N_SENDID=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+     <insert id="acceptshopdeleteSend" parameterType="Map">
+      <selectKey keyProperty="n_code" resultType="String" order="BEFORE">
+         select 'NT'|| MAX(substr(n_code,3)+1) from NT
+      </selectKey>
+     INSERT INTO NT VALUES(#{n_code},DEFAULT,#{title},#{content},'admin',#{id},DEFAULT)
+   </insert>
+   
+   <delete id="Messagedelete" parameterType="note">
+     DELETE FROM NT WHERE N_CODE=#{n_code}
+   </delete>
+   <select id="laundryId" parameterType="String" resultType="N_laundry">
+   <![CDATA[   SELECT * FROM N_LAUNDRY WHERE INSTR(NL_NAME,#{n_takeid}) > 0]]>
+   </select>
+   
+    <select id="coinId" parameterType="String" resultType="Coin">
+   <![CDATA[   SELECT * FROM Coin WHERE INSTR(CL_NAME,#{n_takeid}) > 0]]>
+   </select>
+   <select id="MessageDetail" parameterType="String" resultType="note">
+      SELECT * FROM NT WHERE N_CODE=#{n_code}
+   </select>
+   <insert id="realmessageSend" parameterType="note">
+      <selectKey keyProperty="n_code" resultType="String" order="BEFORE">
+         select 'NT'|| MAX(substr(n_code,3)+1) from NT
+      </selectKey>
+     INSERT INTO NT
+      VALUES(#{n_code},DEFAULT,#{n_title},#{n_content},#{n_sendid},#{n_takeid},DEFAULT)
+   </insert>
+   <update id="MessageUpdate" parameterType="note">
+      UPDATE NT SET N_STATE=1 WHERE N_CODE=#{n_code}
+   </update>
+      <select id="shopIdSelect" parameterType="String" resultType="String">
+      SELECT nl_pid FROM n_laundry WHERE nl_code=#{code}
+   </select>
+     <select id="CoinshopIdSelect" parameterType="String" resultType="String">
+      SELECT cl_pid FROM Coin WHERE cl_code=#{code}
+   </select>
+        <select id="messageCount" parameterType="Map" resultType="Integer">
+      SELECT Count(*) FROM note WHERE N_TAKEID=#{id}
+   </select>
+       <select id="sendmessageCount" parameterType="Map" resultType="Integer">
+      SELECT Count(*) FROM note WHERE N_SENDID=#{id}
+   </select>
+      <select id="personId" parameterType="String" resultType="Person">
+   <![CDATA[   SELECT * FROM person WHERE INSTR(P_NAME,#{n_takeid}) > 0]]>
+   </select>
+   
+</mapper>

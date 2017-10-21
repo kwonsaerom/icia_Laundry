@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="laundry">
+	<insert id="coinShopAdd" parameterType="coin" useGeneratedKeys="false">
+		<selectKey keyProperty="cl_code" resultType="String" order="BEFORE">
+			select 'cl'|| MAX(substr(cl_code,3)+1) as cl_code from cl
+		</selectKey>
+		<!-- /*testDao.insertTest*/ -->
+		INSERT INTO CL
+		VALUES(#{cl_code},#{cl_pid},#{cl_name},#{cl_address},#{cl_phone},#{cl_open},#{cl_close},#{cl_qty},#{cl_content},default,default)
+	</insert>
+	<insert id="lisencePictureAdd" parameterType="Map">
+		<selectKey keyProperty="img_code" resultType="String" order="BEFORE">
+			select 'img'|| MAX(substr(img_code,4)+1) as img_code from img
+		</selectKey>
+		INSERT INTO IMG
+		VALUES(#{img_code},1,#{img_name},#{img_board})
+	</insert>
+	<insert id="shopPictureAdd" parameterType="image">
+		<selectKey keyProperty="img_code" resultType="String" order="BEFORE">
+			select 'img'|| MAX(substr(img_code,4)+1) as img_code from img
+		</selectKey>
+		INSERT INTO IMG
+		VALUES(#{img_code},0,#{img_name},#{img_board})
+	</insert>
+	<select id="CoinDetailSelect" parameterType="String" resultType="Coin">
+		SELECT * FROM CL WHERE CL_CODE = #{cl_code}
+	</select>
+	<select id="ImageSelect" parameterType="String" resultType="image">
+		SELECT * FROM IMAGE WHERE IMG_BOARD = #{nl_code} and IMG_CATEGORI=0
+	</select>
+	<delete id="LaundryDelete" parameterType="String">
+		DELETE FROM NL WHERE NL_CODE = #{string}
+	</delete>
+	<delete id="CoinShopDelete" parameterType="String">
+		DELETE FROM CL WHERE CL_CODE = #{string}
+	</delete>
+	<delete id="imgDelete" parameterType="image">
+		DELETE FROM IMG WHERE img_code = #{img_code}
+	</delete>
+	<update id="coinShopUpdate" parameterType="Map">
+		UPDATE CL SET
+		cl_name=#{cl_name},cl_address=#{cl_address},cl_phone=#{cl_phone},cl_open=#{cl_open},cl_close=#{cl_close},cl_qty=#{cl_qty},cl_content=#{cl_content}
+		where cl_code=#{cl_code}
+	</update>
+
+	<select id="addressSelect" parameterType="String" resultType="Member">
+		SELECT M_ADDRESS FROM MB WHERE M_PID = #{id}
+	</select>
+	<select id="SearchPlace" parameterType="String" resultType="N_laundry">
+      <![CDATA[select * from nl where (INSTR(nl_address,#{keyword}) > 0 or INSTR(nl_name,#{keyword}) > 0 )]]>
+	</select>
+	<select id="SearchCoinPlace" parameterType="String" resultType="Coin">
+      <![CDATA[select * from cl where (INSTR(cl_address,#{keyword}) > 0 or INSTR(cl_name,#{keyword}) > 0 )]]>
+	</select>
+	<update id="PerMissionUpdate" parameterType="String">
+		UPDATE NL SET NL_PERMISSION=1 where nl_code=#{code}
+	</update>
+	<update id="CoinPerMissionUpdate" parameterType="String">
+		UPDATE CL SET CL_PERMISSION=1 where Cl_code=#{code}
+	</update>
+	<delete id="acceptshopdelete" parameterType="String">
+		DELETE FROM NL where NL_code= #{code}
+	</delete>
+	<delete id="Coinacceptshopdelete" parameterType="String">
+		DELETE FROM CL where CL_code= #{code}
+	</delete>
+	<insert id="InsertN_laundry" parameterType="n_laundry">
+		<selectKey keyProperty="nl_code" resultType="String" order="BEFORE">
+			select 'NL'|| MAX(substr(nl_code,3)+1) from nl
+		</selectKey>
+		INSERT INTO N_LAUNDRY
+		VALUES(#{nl_code},#{nl_pid},#{nl_name},#{nl_address},#{nl_phone},#{nl_repair},#{nl_open},#{nl_close},#{nl_content},#{nl_permission},#{nl_timelap},#{nl_qty},DEFAULT)
+	</insert>
+	<insert id="insertLaundryHandle" parameterType="Map">
+		<selectKey keyProperty="lh_code" resultType="String" order="BEFORE">
+			select 'LH'|| MAX(substr(lh_code,3)+1) from lh
+		</selectKey>
+		INSERT INTO LAUNDRYHANDLE
+		VALUES(#{lh_code},#{lh_nlcode},#{lh_kind},#{lh_laundry},#{lh_payment})
+	</insert>
+
+
+	<!--매장찾기 지워야함 -->
+	<select id="LaundryDetailSelect" parameterType="String"
+		resultType="n_laundry">
+		SELECT * FROM N_LAUNDRY WHERE NL_CODE = #{nl_code}
+	</select>
+
+
+	<select id="HandleSelect" parameterType="String" resultType="laundryhandle">
+		SELECT * FROM LAUNDRYHANDLE WHERE LH_NLCODE = #{nl_code}
+	</select>
+	<update id="UpdateNlAddress" parameterType="n_laundry">
+		UPDATE NL SET NL_ADDRESS=#{nl_address} WHERE NL_CODE=#{nl_code}
+	</update>
+	<update id="updateN_laundry" parameterType="n_laundry">
+		UPDATE NL SET NL_NAME=#{nl_name}, NL_PHONE=#{nl_phone},
+		NL_REPAIR=#{nl_repair},
+		NL_OPEN=#{nl_open}, NL_CLOSE=#{nl_close}, NL_CONTENT=#{nl_content},
+		NL_PERMISSION=#{nl_permission}, NL_TIMELAP=${nl_timelap},
+		NL_QTY=#{nl_qty} WHERE NL_CODE=#{nl_code}
+	</update>
+	<delete id="laundryHandleDelete" parameterType="laundryhandle">
+		DELETE FROM LAUNDRYHANDLE WHERE LH_CODE=#{lh_code}
+	</delete>
+
+
+	<select id="shopListSearch" parameterType="String" resultType="N_laundry">
+		SELECT * FROM N_LAUNDRY WHERE NL_CODE = #{NLCODE}
+	</select>
+
+	<select id="laundryCount" resultType="Integer">
+		select count(*) from n_laundry where nl_pid=#{id}
+	</select>
+	<select id="CoinshopCount" resultType="Integer">
+		select count(*) from coin where cl_pid=#{id}
+	</select>
+	<select id="CoinListSelect" parameterType="Map" resultType="coin">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from coin where cl_pid=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="LaundrySelect" parameterType="Map" resultType="n_laundry">
+      <![CDATA[select * from (select rownum rnum,a.* from (select *from n_laundry where nl_pid=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="laundryCheck" parameterType="Map" resultType="N_laundry">
+	<![CDATA[select * from (select rownum rnum,a.* from (select *from nl where NL_PERMISSION=0) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="CoinShopCheck" parameterType="Map" resultType="Coin">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from cl where CL_PERMISSION=0) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="LaundryKindSelect" parameterType="Map" resultType="N_laundry">
+    <![CDATA[select * from (select rownum rnum,a.*from(select * from nl where (INSTR(nl_pid,#{search}) > 0 or INSTR(nl_name,#{search}) > 0 or  INSTR(nl_address,#{search}) > 0 ) )a) where  rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="CoinKindSelect" parameterType="Map" resultType="Coin">
+<![CDATA[select * from (select rownum rnum,a.*from(select * from cl where (INSTR(cl_pid,#{search}) > 0 or INSTR(cl_name,#{search}) > 0 or  INSTR(cl_address,#{search}) > 0 ) )a) where  rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="laundryCheckCount" resultType="Integer">
+		select count(*) from nl where NL_PERMISSION=0
+	</select>
+	<select id="CoinShopCheckCount" resultType="Integer">
+		select count(*) from cl where CL_PERMISSION=0
+	</select>
+	<select id="LaundryAdminCount" resultType="Integer">
+		select count(*) from nl
+	</select>
+	<select id="CoinAdminCount" resultType="Integer">
+		select count(*) from cl
+	</select>
+	<select id="LaundrymapSelect" resultType="N_laundry">
+		select * from nl
+	</select>
+	<select id="LaundryAdminSelect" parameterType="Map" resultType="N_laundry">
+       <![CDATA[select * from (select rownum rnum,a.* from (select *from nl) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="CoinAdminSelect" parameterType="Map" resultType="Coin">
+      <![CDATA[select * from (select rownum rnum,a.* from (select *from cl) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+	</select>
+	<select id="LaundryKindSelectCount" resultType="Integer">
+		 <![CDATA[select count(*) from nl where (INSTR(nl_pid,#{search}) > 0 or INSTR(nl_name,#{search}) > 0 or  INSTR(nl_address,#{search}) > 0 )]]>
+	</select>
+	<select id="CoinKindSelectCount" resultType="Integer">
+		 <![CDATA[select count(*) from cl where (INSTR(cl_pid,#{search}) > 0 or INSTR(cl_name,#{search}) > 0 or  INSTR(cl_address,#{search}) > 0 )]]>
+	</select>
+	<select id="CoinmapSelect" resultType="Coin">
+		select * from cl
+	</select>
+	<select id="getmileage" parameterType="String" resultType="Mileage">
+		SELECT * FROM MILEAGE WHERE MG_PID=#{id}
+	</select>
+	<select id="getPoint" parameterType="String" resultType="Pointhistory">
+		SELECT * FROM POINTHISTORY WHERE PH_PID = #{id} ORDER BY PH_DATE DESC
+	</select>
+	<select id="kindselect" parameterType="String" resultType="Integer">
+		SELECT P_FLAG FROM PERSON WHERE P_ID = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mabatis 공통적인 환경 설정 -->
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+   <settings>
+      <setting name="cacheEnabled" value="false" />
+      <setting name="useGeneratedKeys" value="true" />
+      <setting name="defaultExecutorType" value="REUSE" />
+   </settings>
+   <typeAliases>
+      <typeAlias alias="person" type="com.real.cu.bean.Person"/>
+      <typeAlias alias="answer" type="com.real.cu.bean.Answer"/>
+      <typeAlias alias="business" type="com.real.cu.bean.Business"/>
+      <typeAlias alias="coin" type="com.real.cu.bean.Coin"/>
+      <typeAlias alias="coinreview" type="com.real.cu.bean.Coinreview"/>
+      <typeAlias alias="image" type="com.real.cu.bean.Image"/>
+      <typeAlias alias="laundryhandle" type="com.real.cu.bean.Laundryhandle"/>
+      <typeAlias alias="member" type="com.real.cu.bean.Member"/>
+      <typeAlias alias="mileage" type="com.real.cu.bean.Mileage"/>
+      <typeAlias alias="n_laundry" type="com.real.cu.bean.N_laundry"/>
+      <typeAlias alias="note" type="com.real.cu.bean.Note"/>
+      <typeAlias alias="orderlist" type="com.real.cu.bean.Orderlist"/>
+      <typeAlias alias="pointhistory" type="com.real.cu.bean.Pointhistory"/>
+      <typeAlias alias="readypoint" type="com.real.cu.bean.Readypoint"/>
+      <typeAlias alias="request" type="com.real.cu.bean.Request"/>
+      <typeAlias alias="reservation" type="com.real.cu.bean.Reservation"/>
+      <typeAlias alias="return" type="com.real.cu.bean.Return"/>
+      <typeAlias alias="review" type="com.real.cu.bean.Review"/>
+      <typeAlias alias="notice" type="com.real.cu.bean.Notice"/>
+   </typeAliases>
+</configuration>

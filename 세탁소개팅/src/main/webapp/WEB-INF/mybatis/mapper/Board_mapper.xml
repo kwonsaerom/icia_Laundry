@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+  <select id="selectReview" parameterType="Map" resultType="review">
+      <![CDATA[select * from (select rownum rnum,a.* from (select *from review where RE_PID=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+    <select id="selectRequest" parameterType="Map" resultType="request">
+      <![CDATA[select * from (select rownum rnum,a.* from (select *from request where R_PID=#{id}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="LaundryInfo" parameterType="String" resultType="n_laundry">
+   SELECT nl.nl_code,nl.nl_pid,nl.nl_name,nl.nl_address,nl.nl_phone,nl.nl_repair,nl.nl_content,nl.nl_open,nl.nl_close,nl.nl_permission,nl_timelap,nl_qty
+   from nl inner join review on nl.nl_code=review.re_nlcode where review.re_code=#{re_code}
+   </select>
+     <select id="reviewInfo" parameterType="String" resultType="review">
+      SELECT * FROM review WHERE re_code = #{re_code}
+   </select>
+   <select id="ImageSelect" parameterType="String" resultType="Image">
+        SELECT * FROM IMAGE WHERE IMG_BOARD = #{re_code}
+   </select>
+   <insert id="reviewadd" parameterType="review">
+         <selectKey keyProperty="re_code" resultType="String" order="BEFORE">
+         select 're'|| MAX(substr(re_code,3)+1) as re_code  from review
+      </selectKey>
+      INSERT INTO review
+      VALUES(#{re_code},#{re_nlcode},#{re_content},sysdate,#{re_star},#{re_pid},#{re_nrcode})
+   </insert>
+   <update id="reviewUpdate" parameterType="Map">
+      UPDATE review SET re_content=#{re_content},re_star=#{re_star} where re_code=#{re_code}
+   </update>
+      <insert id="reviewPictureAdd" parameterType="image">
+   <selectKey keyProperty="img_code" resultType="String" order="BEFORE">
+         select 'img'|| MAX(substr(img_code,4)+1) as img_code from img
+      </selectKey>
+      INSERT INTO IMG
+      VALUES(#{img_code},2,#{img_name},#{img_board})
+   </insert>
+      <delete id="imgDelete" parameterType="image">
+      DELETE FROM IMG WHERE img_code = #{img_code}
+   </delete>
+     <select id="shopInfo" parameterType="String" resultType="n_laundry">
+        SELECT * FROM NL WHERE nl_code= #{re_nlcode}
+   </select>
+<select id="requestCheck" parameterType="Map" resultType="Request">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from request) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+	<select id="getperson" resultType="Person" parameterType="String">
+		SELECT * FROM PERSON WHERE P_ID=#{pid}
+	</select>
+
+   <select id="NoticeCount"  resultType="Integer">
+       select count(*) from notice where nt_categori=#{nt_categori}
+   </select>
+   <select id="selectnotice" parameterType="Map" resultType="notice">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from notice where nt_categori=#{nt_categori}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+   <select id="noticedetail"  parameterType="String"  resultType="notice">
+       select * from notice where nt_code=#{nt_code}
+   </select>
+     <insert id="NoticeAdd" parameterType="notice">
+         <selectKey keyProperty="nt_code" resultType="String" order="BEFORE">
+         select 'NT'|| MAX(substr(nt_code,3)+1) as nt_code  from notice
+      </selectKey>
+      INSERT INTO notice
+      VALUES(#{nt_code},#{nt_aid},#{nt_title},#{nt_content},sysdate,default,#{nt_categori})
+   </insert>
+   <delete id="noticeDelete" parameterType="String">
+      DELETE FROM notice where nt_code= #{nt_code}
+   </delete>
+ <update id="noticeUpdate" parameterType="notice">
+      UPDATE notice SET nt_content=#{nt_content},nt_title=#{nt_title},nt_categori=#{nt_categori} where nt_code=#{nt_code}
+   </update>
+   <update id="noticedetailHit" parameterType="notice">
+      UPDATE notice SET nt_click=nt_click+1 where nt_code=#{nt_code}
+   </update>
+ <select id="reviewCount"  resultType="Integer">
+       select count(*) from review where re_pid=#{id}
+   </select>
+    <select id="requestCount" parameterType="String"  resultType="Integer">
+       select count(*) from request where r_pid=#{id}
+   </select>
+       <select id="reviewList"  parameterType="String"  resultType="Review">
+       SELECT * FROM REVIEW WHERE RE_NLCODE=#{NLCODE}
+   </select>
+   
+   <select id="laundryInfo"  parameterType="String"  resultType="N_laundry">
+       SELECT * FROM N_LAUNDRY WHERE NL_CODE=#{NLCODE}
+   </select>
+<insert id="requestInsert" parameterType="request">
+      <selectKey keyProperty="r_code" resultType="String" order="BEFORE">
+         select 'R'|| MAX(substr(r_code,2)+1) as r_code  from request
+      </selectKey>
+      INSERT INTO request
+      VALUES(#{r_code},#{r_pid},#{r_title},#{r_content},sysdate,0)
+   </insert>
+	<select id="requestselectCheck" parameterType="Integer" resultType="request" >
+		SELECT * FROM REQUEST WHERE R_STATE=#{state}
+	</select>
+	     <select id="requestAnswerSelect" parameterType="String" resultType="Request" >
+      SELECT * FROM REQUEST WHERE r_code=#{r_code}
+   </select>
+   <update id="requestUpdate" parameterType="answer">
+      UPDATE request SET r_state=1 where r_code=#{an_rcode}
+   </update>
+   <insert id="AnswerAdd" parameterType="request">
+   <selectKey keyProperty="an_code" resultType="String" order="BEFORE">
+         select 'AN'|| MAX(substr(an_code,3)+1) as an_code  from answer
+      </selectKey>
+      INSERT INTO answer
+      VALUES(#{an_code},#{an_rcode},'admin',#{an_content},sysdate)
+   </insert>
+   <select id="requestCheckCount"  resultType="Integer">
+       select count(*) from request
+   </select>
+   
+   <select id="requestDetailSelect"  parameterType="String" resultType="request">
+       select * from request where R_CODE=#{code}
+   </select>
+   
+    <select id="AnswerDetail"  parameterType="String" resultType="answer">
+       select * from answer where AN_RCODE=#{code}
+   </select>   
+   <select id="requestSelectList" parameterType="Map" resultType="request">
+   <![CDATA[select * from (select rownum rnum,a.* from (select *from request where R_STATE=#{state}) a) where rnum>=#{startrow} and rnum<=#{endrow}]]>
+   </select>
+
+</mapper>
